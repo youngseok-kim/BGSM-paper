@@ -1,4 +1,15 @@
-using LightGraphs, PyPlot
+# a function for BGSM_general (Section 2,3)
+
+# y : a vector of data
+# D : graph incidence matrix
+# X : a design matrix
+# w : a support vector
+# nu : a prior precision for alpha
+# v0, v1 : tuning parameters
+# a, b : inverse gamma hyperparameters
+# convtol : convergence tolerance
+# orthotol : tolerance to check whether w is an eigenvector of X'X
+# iter : a number of maximum allowed iteration
 
 function BGSM_general(    y, D;                                 # a 
                           X = zeros(0,0), w = zeros(0),         # a design matrix and a support vector
@@ -101,6 +112,9 @@ function BGSM_general(    y, D;                                 # a
     end
     return Dict([
                  (:alpha,alpha), (:theta,theta), (:delta, delta), (:q, q),
-                 (:sigmasq,sigmasq), (:eta,eta), (:w, w)
+                 (:sigmasq,sigmasq), (:eta,eta), 
+                 (:y, y), (:D, D), (:X,X), (:w, w), (:nu,nu),
+                 (:n, n), (:p, p), (:m, m),
+                 (:v0, v0), (:v1, v1)
                ])
 end
