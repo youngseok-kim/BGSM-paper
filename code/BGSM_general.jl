@@ -15,6 +15,8 @@ function BGSM_general(    y, D;                                 # a
                           X = zeros(0,0), w = zeros(0),         # a design matrix and a support vector
                           nu = 0,                               # a prior precision for alpha
                           v0 = 1e-1, v1 = 1e4,                  # tuning parameters
+                          ratio = "crude",                      # ratio
+                          C = 1,                                # lower bound C
                           a = 0, b = 1,                         # inverse gamma hyperparmeters
                           A = 1, B = 1,                         # beta bernoulli hyperparmeters
                           convtol = 1e-10, orthotol = 1e-10,    # tolerances
@@ -78,7 +80,11 @@ function BGSM_general(    y, D;                                 # a
     for i = 1:iter
         
         # E-step : update q and tau
-        q = 1./( 1 + (1-eta)/eta * sqrt(v0/v1) * exp.(delta.^2/2 * (1/v0 - 1/v1)/sigmasq) );
+        if ratio == "crude"
+            q = 1./( 1 + (1-eta)/eta * sqrt(v0/v1) * exp.(delta.^2/2 * (1/v0 - 1/v1)/sigmasq) );
+        elseif ratio == "er"
+            q = 1./( 1 + (1-eta)/eta * sqrt(v0/v1).^C * exp.(delta.^2/2 * (1/v0 - 1/v1)/sigmasq) );
+        end
         tau = q/v0 + (1-q)/v1;
         
         # M-step : update theta, delta, sigma^2
@@ -100,7 +106,7 @@ function BGSM_general(    y, D;                                 # a
         end
         
         # printout
-        if rem(i,5) == 0 && verbose == true
+        if rem(i,10) == 0 && verbose == true
             @printf "iteration: %d, error: %0.2e\n" i err;
         end
         
@@ -114,7 +120,7 @@ function BGSM_general(    y, D;                                 # a
                  (:alpha,alpha), (:theta,theta), (:delta, delta), (:q, q),
                  (:sigmasq,sigmasq), (:eta,eta), 
                  (:y, y), (:D, D), (:X,X), (:w, w), (:nu,nu),
-                 (:n, n), (:p, p), (:m, m),
+                 (:n, n), (:p, p), (:m, m), (:b, b),
                  (:v0, v0), (:v1, v1)
                ])
 end
